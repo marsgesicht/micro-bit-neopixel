@@ -20,35 +20,66 @@ def transform(x,y):
     y = y % MAX_Y
     s = x * MAX_Y   #strip
     if (x/2 == x//2) | (x == 0):   #x is even -> y(0-4) 
-        s += y
-        #s += 4-y 
-    else:                          #x is odd ->y(4-0)
-        s += MAX_Y-1-y
         #s += y
+        s += MAX_Y-1-y 
+    else:                          #x is odd ->y(4-0)
+        #s += MAX_Y-1-y
+        s += y
     return s
 def wheel(pos):
     pos = pos & 255
     if pos < 85:
-        return (pos, 255 - pos, 0)
+        return (pos * 3, 255 - pos * 3, 0)
     elif pos < 170:
         pos -= 85
-        return (255 - pos, 0, pos)        
+        return (255 - pos * 3, 0, pos * 3)        
     else:
         pos -= 170
-        return (0, pos , 255 - pos)
+        return (0, pos * 3 , 255 - pos * 3)
 
-def display_heart(strip):
-    heart = ((2,0),(1,1),(2,1),(3,1),(0,2),(1,2),(2,2),(3,2),(4,2),(0,2),(1,2),(2,2),(3,2),(4,2),(1,4),(3,4))
-    for x in range(0,len(heart)):
-        x = heart[x][0]
-        y = heart[x][1]
-        s = transform(x,y)
-        strip[s] = (125,0,125)
-        strip.show()
-        sleep(500)
+def display_image(strip):
+    heart = ((2,0),(1,1),(2,1),(3,1),(0,2),(1,2),(2,2),(3,2),(4,2),(0,3),(1,3),(2,3),(3,3),(4,3),(1,4),(3,4))
+    smiley = ((1,0),(2,0),(3,0),(0,1),(4,1),(2,2),(1,3),(3,3))
+    _n = ((0,0),(4,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(0,4),(1,4),(2,4),(3,4))
+    _g = ((0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(4,1),(0,2),(3,2),(4,2),(0,3),(1,4),(2,4),(3,4))
+    _o = ((1,0),(2,0),(3,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
+    _c = ((1,0),(2,0),(3,0),(4,0),(0,1),(0,2),(0,3),(1,4),(2,4),(3,4),(4,4))
+    images = (heart,_n,_g,_o,_c,heart,smiley)
+    for k in range(len(images)):
+        #sleep(500)
+        strip.clear()
+        image = images[k]
+        for j in range(256):
+            for i in range(len(image)):
+                x = image[i][0]
+                y = image[i][1]
+                s = transform(x,y)
+                strip[s] = wheel((int(i * 256 / len(image) + j*5)))
+            strip.show()
+def spin(strip, iteration=10):
+    strip.clear()
+    for i in range(iteration):
+        for x in range(MAX_X):
+            for y in range(MAX_Y,0,-2):
+                s = transform(x,y)
+                strip[s] = wheel((int(x * 256 / MAX_X + y*15)))
+                strip.show()
+                sleep(30)   
 
 if __name__ == '__main__':
     
     while True:
-        STRIP.clear()
-        display_heart(STRIP)
+     #   STRIP.clear()
+       # display_image(STRIP)
+       spin(STRIP)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
