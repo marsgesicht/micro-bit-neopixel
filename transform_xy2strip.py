@@ -67,11 +67,15 @@ def spin(strip, iteration=10):
                 sleep(30)   
 
 if __name__ == '__main__':
-    
+    (x_init,y_init,z_init) = accelerometer.get_values()
     while True:
-     #   STRIP.clear()
-       # display_image(STRIP)
-       spin(STRIP)
+        (x_,y_,z_) = accelerometer.get_values()
+        if (x_init-15>x_) | (x_init+15<x_) | (y_init-15>y_) | (y_init+15<y_) | (z_init-15>z_) | (z_init+15<z_):
+            display.clear()    
+            display_image(STRIP)
+            (x_init,y_init,z_init) = accelerometer.get_values()
+            break
+        spin(STRIP)
         
         
         
