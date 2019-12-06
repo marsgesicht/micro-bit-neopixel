@@ -10,10 +10,35 @@ LED_PIN = pin0
 STRIP = neopixel.NeoPixel(LED_PIN, LED_COUNT+1)
 SENSE = 20
 
-class Dot():
+class Drip():
     def __init__(self):
         pass
-
+def drip(strip, x=0):
+    y = MAX_Y - 1
+    weight = 0
+    puddle_x = 0
+    def puddle(x):
+        puddle_x += 10
+        if (puddle_x<256):
+            return (0,0,(puddle_x&255))
+        elif (puddle_x<512):
+            return ((puddle_x-255)&255,0,(512-puddle_x)&255)
+        else:
+            puddle_x = 0
+            return (0,0,0)
+            
+    while True:
+        weight = weight + 1/randint(9,19)
+        if (weight<=85):
+            strip[transform(x,y)] = (int(weight*3),int(85-weight),0)
+        else:
+            weight=0
+            for iy in range(y-1,-1,-1):
+                strip[transform(x,iy+1)] = (0,0,0)
+                strip[transform(x,iy)] = (int(51*iy),0,int(randint(50,180)/(iy+1)))
+                strip.show()
+            strip[transform(x,0)] = puddle(x)
+        strip.show()
 def transform(x,y):
     #grid x/y is 12/5
     x = x % MAX_X
@@ -50,27 +75,26 @@ def display_image(strip):
         #sleep(500)
         strip.clear()
         image = images[k]
-        for j in range(256):
+        for j in range(85):
             for i in range(len(image)):
                 x = image[i][0]
                 y = image[i][1]
                 s = transform(x,y)
                 strip[s] = wheel((int(i * 256 / len(image) + j*5)))
             strip.show()
-def spin(strip, xyz_init, iteration=10):
+def spin(strip, xyz_init, iteration=100):
     def motion_action():
         if (get_motion(xyz_init,sense=55)):
             display_image(STRIP)
             xyz_init = accelerometer.get_values()
     for i in range(iteration):
         strip.clear()
-        for x in range(MAX_X):
-            for y in range(MAX_Y,0,-2):
-                s = transform(x,y)
-                strip[s] = wheel((int(x * 256 / MAX_X + y*15)))
-                strip.show()
-                motion_action()
-                sleep(30)   
+        for x in range(0,MAX_X,i%3+1):
+            s = transform(x,iteration-i)
+            strip[s] = (0,0,i&255)#wheel((int(x * 256 / MAX_X + i*15)))
+            strip.show()
+            #motion_action()
+            sleep(30)   
 def get_motion(xyz_init,sense=15):
     s = sense
     (x_init,y_init,z_init) = xyz_init
@@ -84,7 +108,8 @@ if __name__ == '__main__':
     xyz_init = accelerometer.get_values()
     while True:
         display.clear()  
-        spin(STRIP,xyz_init)
+        #spin(STRIP,xyz_init)
+        drip(STRIP)
         
         
         
