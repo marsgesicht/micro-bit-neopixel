@@ -45,6 +45,7 @@ def display_image(strip):
     _o = ((1,0),(2,0),(3,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
     _c = ((1,0),(2,0),(3,0),(4,0),(0,1),(0,2),(0,3),(1,4),(2,4),(3,4),(4,4))
     images = (heart,_n,_g,_o,_c,heart,smiley)
+    images= (heart,)
     for k in range(len(images)):
         #sleep(500)
         strip.clear()
@@ -56,26 +57,34 @@ def display_image(strip):
                 s = transform(x,y)
                 strip[s] = wheel((int(i * 256 / len(image) + j*5)))
             strip.show()
-def spin(strip, iteration=10):
-    strip.clear()
+def spin(strip, xyz_init, iteration=10):
+    def motion_action():
+        if (get_motion(xyz_init,sense=55)):
+            display_image(STRIP)
+            xyz_init = accelerometer.get_values()
     for i in range(iteration):
+        strip.clear()
         for x in range(MAX_X):
             for y in range(MAX_Y,0,-2):
                 s = transform(x,y)
                 strip[s] = wheel((int(x * 256 / MAX_X + y*15)))
                 strip.show()
+                motion_action()
                 sleep(30)   
-
+def get_motion(xyz_init,sense=15):
+    s = sense
+    (x_init,y_init,z_init) = xyz_init
+    (x_,y_,z_) = accelerometer.get_values()
+    if (x_init-s>x_) | (x_init+s<x_) | (y_init-s>y_) | (y_init+s<y_) | (z_init-s>z_) | (z_init+s<z_):
+        return True
+    else:
+        return False
+        
 if __name__ == '__main__':
-    (x_init,y_init,z_init) = accelerometer.get_values()
+    xyz_init = accelerometer.get_values()
     while True:
-        (x_,y_,z_) = accelerometer.get_values()
-        if (x_init-15>x_) | (x_init+15<x_) | (y_init-15>y_) | (y_init+15<y_) | (z_init-15>z_) | (z_init+15<z_):
-            display.clear()    
-            display_image(STRIP)
-            (x_init,y_init,z_init) = accelerometer.get_values()
-            break
-        spin(STRIP)
+        display.clear()  
+        spin(STRIP,xyz_init)
         
         
         
