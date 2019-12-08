@@ -10,9 +10,6 @@ LED_PIN = pin0
 STRIP = neopixel.NeoPixel(LED_PIN, LED_COUNT+1)
 SENSE = 20
 
-class Drip():
-    def __init__(self):
-        pass
 def drip(strip, x=0):
     y = MAX_Y - 1
     weight = 0
@@ -26,8 +23,8 @@ def drip(strip, x=0):
         else:
             puddle_x = 0
             return (0,0,0)
-            
     while True:
+        mo_detect(accelerometer.get_values()) 
         weight = weight + 1/randint(9,19)
         if (weight<=85):
             strip[transform(x,y)] = (int(weight*3),int(85-weight),0)
@@ -82,27 +79,13 @@ def display_image(strip):
                 s = transform(x,y)
                 strip[s] = wheel((int(i * 256 / len(image) + j*5)))
             strip.show()
-def spin(strip, xyz_init, iteration=100):
-    def motion_action():
-        if (get_motion(xyz_init,sense=55)):
-            display_image(STRIP)
-            xyz_init = accelerometer.get_values()
-    for i in range(iteration):
         strip.clear()
-        for x in range(0,MAX_X,i%3+1):
-            s = transform(x,iteration-i)
-            strip[s] = (0,0,i&255)#wheel((int(x * 256 / MAX_X + i*15)))
-            strip.show()
-            #motion_action()
-            sleep(30)   
-def get_motion(xyz_init,sense=15):
+def mo_detect(xyz_init,sense=55):  #xyz_init = accelerometer.get_values()
     s = sense
     (x_init,y_init,z_init) = xyz_init
     (x_,y_,z_) = accelerometer.get_values()
     if (x_init-s>x_) | (x_init+s<x_) | (y_init-s>y_) | (y_init+s<y_) | (z_init-s>z_) | (z_init+s<z_):
-        return True
-    else:
-        return False
+        display_image(STRIP)
         
 if __name__ == '__main__':
     xyz_init = accelerometer.get_values()
