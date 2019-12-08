@@ -10,32 +10,42 @@ LED_PIN = pin0
 STRIP = neopixel.NeoPixel(LED_PIN, LED_COUNT+1)
 SENSE = 20
 
-def drip(strip, x=0):
+def drip(strip, drip_count=3, drip_size=10):
     y = MAX_Y - 1
+    x_list = []
+    for j in range(drip_count):
+        x_list.append([randint(0,MAX_X-1),0])
     weight = 0
     puddle_x = 0
-    def puddle(x):
-        puddle_x += 10
-        if (puddle_x<256):
-            return (0,0,(puddle_x&255))
-        elif (puddle_x<512):
-            return ((puddle_x-255)&255,0,(512-puddle_x)&255)
-        else:
-            puddle_x = 0
-            return (0,0,0)
+    def puddle(w=10):
+        for i in range (MAX_X):
+            puddle_x += w/MAX_X
+            p_x = math.floor(puddle_x)
+            if (p_x<255):
+                strip[transform(i,0)] = (0,0,(p_x&255))
+            elif (p_x<510):
+                strip[transform(i,0)] = ((p_x-255)&255,0,(512-p_x)&255)
+            else:
+                puddle_x = 0
+                strip[transform(i,0)] = (0,0,0)
     while True:
-        mo_detect(accelerometer.get_values()) 
-        weight = weight + 1/randint(9,19)
-        if (weight<=85):
-            strip[transform(x,y)] = (int(weight*3),int(85-weight),0)
-        else:
-            weight=0
-            for iy in range(y-1,-1,-1):
-                strip[transform(x,iy+1)] = (0,0,0)
-                strip[transform(x,iy)] = (int(51*iy),0,int(randint(50,180)/(iy+1)))
-                strip.show()
-            strip[transform(x,0)] = puddle(x)
-        strip.show()
+        for j in range(drip_count):
+            x = x_list[j][0]
+            mo_detect(accelerometer.get_values()) 
+            x_list[j][1] = x_list[j][1] + (j+1)/randint(9,19)     #weight of the drip => dripping speed
+            weight = x_list[j][1]
+            if (weight<=85):
+                strip[transform(x,y)] = (int(weight*3),int(85-weight),0)
+            else:
+                x_list[j][1] = 0
+                x_list[j][0] = randint(0,MAX_X-1)
+                strip[transform(x,y)] = (0,0,0)
+                for iy in range(y-1,-1,-1):     #falling drip animation
+                    strip[transform(x,iy+1)] = (0,0,0)
+                    strip[transform(x,iy)] = (int(51*iy),0,int(randint(175,255)/(iy+1)))
+                    strip.show()
+                puddle(drip_size)                    #fill puddle
+            strip.show()
 def transform(x,y):
     #grid x/y is 12/5
     x = x % MAX_X
@@ -66,8 +76,7 @@ def display_image(strip):
     _g = ((0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(4,1),(0,2),(3,2),(4,2),(0,3),(1,4),(2,4),(3,4))
     _o = ((1,0),(2,0),(3,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
     _c = ((1,0),(2,0),(3,0),(4,0),(0,1),(0,2),(0,3),(1,4),(2,4),(3,4),(4,4))
-    images = (heart,_n,_g,_o,_c,heart,smiley)
-    images= (heart,)
+    images = (heart,) if randint(1,8)<7 else (heart,_n,_g,_o,_c,heart,smiley)
     for k in range(len(images)):
         #sleep(500)
         strip.clear()
@@ -80,7 +89,7 @@ def display_image(strip):
                 strip[s] = wheel((int(i * 256 / len(image) + j*5)))
             strip.show()
         strip.clear()
-def mo_detect(xyz_init,sense=55):  #xyz_init = accelerometer.get_values()
+def mo_detect(xyz_init,sense=30):  #xyz_init = accelerometer.get_values()
     s = sense
     (x_init,y_init,z_init) = xyz_init
     (x_,y_,z_) = accelerometer.get_values()
@@ -91,8 +100,7 @@ if __name__ == '__main__':
     xyz_init = accelerometer.get_values()
     while True:
         display.clear()  
-        #spin(STRIP,xyz_init)
-        drip(STRIP)
+        drip(STRIP,5)
         
         
         
