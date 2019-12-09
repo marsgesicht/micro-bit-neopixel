@@ -22,9 +22,9 @@ def drip(strip, drip_count=3, drip_size=10):
             puddle_x += w/MAX_X
             p_x = math.floor(puddle_x)
             if (p_x<255):
-                strip[transform(i,0)] = (0,0,(p_x&255))
+                strip[transform(i,0)] = (0,randint(0,20),(p_x&255))
             elif (p_x<510):
-                strip[transform(i,0)] = ((p_x-255)&255,0,(512-p_x)&255)
+                strip[transform(i,0)] = ((p_x-255)&255,randint(0,30),(512-p_x)&255)
             else:
                 puddle_x = 0
                 strip[transform(i,0)] = (0,0,0)
