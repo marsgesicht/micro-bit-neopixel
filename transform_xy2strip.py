@@ -74,20 +74,26 @@ def display_image(strip):
     smiley = ((1,0),(2,0),(3,0),(0,1),(4,1),(2,2),(1,3),(3,3))
     _n = ((0,0),(4,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(0,4),(1,4),(2,4),(3,4))
     _g = ((0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(4,1),(0,2),(3,2),(4,2),(0,3),(1,4),(2,4),(3,4))
-    _o = ((1,0),(2,0),(3,0),(0,1),(4,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
+    _o = ((2,0),(1,1),(2,1),(3,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
     _c = ((1,0),(2,0),(3,0),(4,0),(0,1),(0,2),(0,3),(1,4),(2,4),(3,4),(4,4))
     images = (heart,) if randint(1,8)<7 else (heart,_n,_g,_o,_c,heart,smiley)
     for k in range(len(images)):
         #sleep(500)
         strip.clear()
         image = images[k]
+        s_list = []
         for j in range(85):
             for i in range(len(image)):
                 x = image[i][0]
                 y = image[i][1]
-                s = transform(x,y)
+                s = transform(x+j,y)
+                s_list.append(s)
                 strip[s] = wheel((int(i * 256 / len(image) + j*5)))
             strip.show()
+            sleep(50)
+            for i in s_list:
+                strip[i] = (0,0,0)
+            s_list.clear()
         strip.clear()
 def mo_detect(xyz_init,sense=30):  #xyz_init = accelerometer.get_values()
     s = sense
