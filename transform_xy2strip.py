@@ -8,7 +8,7 @@ MAX_Y = 5
 LED_COUNT = 59
 LED_PIN = pin0
 STRIP = neopixel.NeoPixel(LED_PIN, LED_COUNT+1)
-SENSE = 25
+SENSE = 50
 
 def drip(strip, drip_count=3, drip_size=10):
     y = MAX_Y - 1
@@ -31,8 +31,8 @@ def drip(strip, drip_count=3, drip_size=10):
                 strip[transform(i,0)] = (0,0,0)
         if puddle_x == 0:
             nonlocal drip_count, drip_size
-            drip_count = randint(4,MAX_X)  
-            drip_size = randint(5,50)
+            drip_count = randint(1,10)  
+            drip_size = randint(7,30)
             x_list.clear()
     while True:
         for j in range(drip_count):
@@ -81,12 +81,12 @@ def display_image(strip):
     _g = ((0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(4,1),(0,2),(3,2),(4,2),(0,3),(1,4),(2,4),(3,4))
     _o = ((2,0),(1,1),(2,1),(3,1),(0,2),(4,2),(0,3),(4,3),(1,4),(2,4),(3,4))
     _c = ((1,0),(2,0),(3,0),(4,0),(0,1),(0,2),(0,3),(1,4),(2,4),(3,4),(4,4))
-    images = (heart,) if randint(1,8)<7 else (heart,_n,_g,_o,_c,heart,)
+    images = (heart,) if randint(1,88)<80 else (heart,_n,_g,_o,_c,heart,)
     for k in range(len(images)):
         strip.clear()
         image = images[k]
         s_list = []
-        for j in range(85):
+        for j in range(45):
             for i in range(len(image)):
                 x = image[i][0]
                 y = image[i][1]
@@ -99,14 +99,15 @@ def display_image(strip):
                 strip[i] = (0,0,0)
             s_list.clear()
         strip.clear()
-def mo_detect(xyz_init,sense=30):
-    s = sense
+def mo_detect(xyz_init):
+    s = SENSE
     (x_init,y_init,z_init) = xyz_init
     (x_,y_,z_) = accelerometer.get_values()
     if (x_init-s>x_) | (x_init+s<x_) | (y_init-s>y_) | (y_init+s<y_) | (z_init-s>z_) | (z_init+s<z_):
         display_image(STRIP)
 if __name__ == '__main__':
+    sleep(1000)
     xyz_init = accelerometer.get_values()
     while True:
         display.clear()  
-        drip(STRIP,10,220)
+        drip(STRIP,1,25)
